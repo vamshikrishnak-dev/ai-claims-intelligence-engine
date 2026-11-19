@@ -1,0 +1,23 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.log
+.env
+.env.*
+!.env.example
+backend/src/generated/prisma/
+
+# Private assessment handout and local artifacts
+/*TASK A - For Software Engineer Candidatures.docx
+.~lock.*
+~$*
+*.tmp
+*.temp
+*.swp
+*.bak
+*.dump
+*.pem
+*.key
+.DS_Store
+Thumbs.db

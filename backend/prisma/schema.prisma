@@ -1,0 +1,108 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ClaimStatus {
+  PROPOSED
+  APPROVED
+  REJECTED
+}
+
+enum Verdict {
+  SUPPORTED
+  PARTIALLY_SUPPORTED
+  UNSUPPORTED
+}
+
+enum AssessmentProvider {
+  MOCK
+  OPENAI
+}
+
+model Claim {
+  id          String          @id @default(uuid()) @db.Uuid
+  title       String
+  claimText   String
+  status      ClaimStatus     @default(PROPOSED)
+  createdAt   DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime        @updatedAt @db.Timestamptz(3)
+  reviews     ClaimReview[]
+  formulas    Formula[]
+  studies     ClinicalStudy[]
+  assessments Assessment[]
+}
+
+model ClaimReview {
+  id          String   @id @default(uuid()) @db.Uuid
+  claimId     String   @db.Uuid
+  applicable  Boolean
+  feasible    Boolean
+  reviewNotes String?
+  reviewedAt  DateTime @default(now()) @db.Timestamptz(3)
+  claim       Claim    @relation(fields: [claimId], references: [id], onDelete: Restrict)
+
+  @@index([claimId, reviewedAt])
+}
+
+model Formula {
+  id          String          @id @default(uuid()) @db.Uuid
+  claimId     String          @db.Uuid
+  formulaName String
+  description String
+  ingredients Json
+  createdAt   DateTime        @default(now()) @db.Timestamptz(3)
+  claim       Claim           @relation(fields: [claimId], references: [id], onDelete: Restrict)
+  studies     ClinicalStudy[]
+  assessments Assessment[]
+
+  @@unique([claimId, id])
+}
+
+model ClinicalStudy {
+  id             String       @id @default(uuid()) @db.Uuid
+  claimId        String       @db.Uuid
+  formulaId      String       @db.Uuid
+  studyTitle     String
+  studyDesign    String?
+  sampleSize     Int?
+  population     String?
+  measuredEffect Float?
+  effectUnit     String?
+  durationWeeks  Float?
+  comparator     String?
+  sourceExcerpts Json
+  createdAt      DateTime     @default(now()) @db.Timestamptz(3)
+  claim          Claim        @relation(fields: [claimId], references: [id], onDelete: Restrict)
+  formula        Formula      @relation(fields: [claimId, formulaId], references: [claimId, id], onDelete: Restrict)
+  assessments    Assessment[]
+
+  @@unique([claimId, formulaId, id])
+}
+
+model Assessment {
+  id                 String             @id @default(uuid()) @db.Uuid
+  claimId            String             @db.Uuid
+  formulaId          String             @db.Uuid
+  clinicalStudyId    String             @db.Uuid
+  supported          Boolean
+  confidence         Float
+  verdict            Verdict?
+  reasoning          String
+  evidenceReferences Json
+  evidenceGaps       Json
+  provider           AssessmentProvider
+  inputSnapshot      Json
+  createdAt          DateTime           @default(now()) @db.Timestamptz(3)
+  claim              Claim              @relation(fields: [claimId], references: [id], onDelete: Restrict)
+  formula            Formula            @relation(fields: [claimId, formulaId], references: [claimId, id], onDelete: Restrict)
+  clinicalStudy      ClinicalStudy      @relation(fields: [claimId, formulaId, clinicalStudyId], references: [claimId, formulaId, id], onDelete: Restrict)
+
+  @@index([claimId, createdAt])
+  @@index([claimId, formulaId, clinicalStudyId])
+}

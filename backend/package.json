@@ -1,0 +1,40 @@
+{
+  "name": "lorment-backend",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "^22.12.0 || >=24"
+  },
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "test": "npm run build && node --test test/claims.e2e.test.cjs",
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main.js"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "dotenv": "18.0.10",
+    "openai": "^7.60.0",
+    "pg": "8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@types/node": "^24.0.0",
+    "prisma": "7.10.1",
+    "tsx": "4.23.15",
+    "typescript": "~5.9.3"
+  }
+}
